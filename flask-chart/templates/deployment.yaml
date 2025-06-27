@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-flask
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-flask
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-flask
+    spec:
+      containers:
+      - name: flask
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: DATABASE_URL
+          value: "{{ .Values.env.DATABASE_URL }}"
+        ports:
+        - containerPort: {{ .Values.service.port }}
+

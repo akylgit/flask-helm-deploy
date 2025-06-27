@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: akyldocker25/flask-app
+  tag: v2
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 5000
+  nodePort: 32000
+
+env:
+  DATABASE_URL: "postgresql://postgres:example@postgres:5432/postgres"
+
