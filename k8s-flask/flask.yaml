@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+      - name: flask-app
+        image: akyldocker25/flask-app:v2
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://postgres:example@postgres:5432/postgres"
+        ports:
+        - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app
+spec:
+  type: NodePort
+  selector:
+    app: flask-app
+  ports:
+  - port: 5000
+    targetPort: 5000
+    nodePort: 30000
+

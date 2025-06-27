@@ -1,0 +1,39 @@
+name: CI with Docker Compose
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build and start services
+        run: docker-compose up -d --build
+
+      - name: Wait for DB to be ready
+        run: |
+          for i in {1..10}; do
+            docker-compose exec db pg_isready && break
+            echo "Waiting for PostgreSQL..."
+            sleep 3
+          done
+
+      - name: Run Flask app test
+        run: |
+          curl --retry 5 --retry-delay 3 http://192.168.56.11:3000
+
+      - name: Tear down
+        run: docker-compose down
+
