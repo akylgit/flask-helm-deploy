@@ -40,7 +40,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          git config user.name "GitHub Actions"
+          git config user.name "akylgit"
           git config user.email "johns.ak87@gmail.com"
           git add flask-chart/values.yaml
           git commit -m "Update image tag to $IMAGE_TAG" || echo "No changes to commit"
