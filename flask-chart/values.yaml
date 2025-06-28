@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: akyldocker25/flask-app
-  tag: v3
+  tag: flask-app:1751076364
   pullPolicy: IfNotPresent
 
 service:
