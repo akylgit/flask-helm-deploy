@@ -40,3 +40,4 @@ jobs:
           git add flask-chart/values.yaml
           git commit -m "Update image tag to $IMAGE_TAG"
           git push
+          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/akylgit/flask-helm-deploy.git HEAD:main
