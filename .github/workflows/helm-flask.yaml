@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false # disable default token to use PAT
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
@@ -34,9 +36,12 @@ jobs:
           sed -i "s|tag:.*|tag: ${IMAGE_TAG}|g" flask-chart/values.yaml
 
       - name: Commit updated Helm chart
+        env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "ci@example.com"
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/akylgit/flask-helm-deploy.git
           git add flask-chart/values.yaml
-          git commit -m "Update image tag to $IMAGE_TAG"
-          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/akylgit/flask-helm-deploy.git HEAD:main
+          git commit -m "Update image tag to $IMAGE_TAG" || echo "No changes to commit"
+          git push origin HEAD:main
