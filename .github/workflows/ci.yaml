@@ -1,10 +1,10 @@
 name: CI with Docker Compose
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+#on:
+# push:
+#  branches:
+#   - main
+#pull_request:
 
 jobs:
   test:
@@ -36,4 +36,3 @@ jobs:
 
       - name: Tear down
         run: docker-compose down
-

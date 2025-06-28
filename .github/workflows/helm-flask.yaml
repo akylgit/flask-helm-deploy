@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG=flask-app:$(date +%s)
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_TAG .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_TAG
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+
+      - name: Update Helm values.yaml with new image tag
+        run: |
+          sed -i "s|tag:.*|tag: ${IMAGE_TAG}|g" flask-chart/values.yaml
+
+      - name: Commit updated Helm chart
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "ci@example.com"
+          git add flask-chart/values.yaml
+          git commit -m "Update image tag to $IMAGE_TAG"
+          git push
