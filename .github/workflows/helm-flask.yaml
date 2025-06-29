@@ -13,8 +13,8 @@ jobs:
       - name: Checkout source code with PAT token
         uses: actions/checkout@v3
         with:
-          persist-credentials: false # disable default GITHUB_TOKEN
-          token: ${{ secrets.PAT_TOKEN }} # use your Personal Access Token here
+          persist-credentials: false
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -27,14 +27,14 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          IMAGE_TAG=flask-app:$(date +%s)
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_TAG .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_TAG
+          IMAGE_TAG=$(date +%s)
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/flask-app:${IMAGE_TAG} .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/flask-app:${IMAGE_TAG}
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
 
       - name: Update Helm values.yaml with new image tag
         run: |
-          sed -i "s|^\(\s*tag:\s*\).*|\1${IMAGE_TAG}|" flask-chart/values.yaml
+          sed -i "s|^\(\s*tag:\s*\).*|\1\"${IMAGE_TAG}\"|" flask-chart/values.yaml
 
       - name: Commit updated Helm chart and push
         env:
@@ -44,5 +44,5 @@ jobs:
           git config user.email "johns.ak87@gmail.com"
           git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/akylgit/flask-helm-deploy.git
           git add flask-chart/values.yaml
-          git commit -m "Update image tag to $IMAGE_TAG" || echo "No changes to commit"
+          git commit -m "Update image tag to ${IMAGE_TAG}" || echo "No changes to commit"
           git push origin HEAD:main
